@@ -1,0 +1,130 @@
+name: security ninja code scanner
+description: this action performs a security scan on your code repository and detects any potential security vulnerabilities or secrets that may be present.
+
+runs:
+  using: composite
+  steps:
+    - name: checkout code
+      uses: actions/checkout@v2
+
+    - name: install bearer
+      shell: bash
+      run: |
+        sudo apt-get install apt-transport-https
+        sudo echo "deb [trusted=yes] https://apt.fury.io/bearer/ /" | sudo tee -a /etc/apt/sources.list.d/fury.list
+        sudo apt-get update
+        sudo apt-get install bearer
+
+    - name: setup node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14.x
+
+    - name: run bearer for secrets
+      shell: bash
+      run: bearer scan ${{ github.workspace }} --scanner=secrets --force --output secrets.json --format json
+
+    - name: run bearer code security
+      shell: bash
+      run: bearer scan ${{ github.workspace }} --scanner=sast --force --output sast.json --format json
+
+    - name: create comment for reported errors
+      uses: actions/github-script@v6
+
+      with:
+        script: |
+          const fileUrl = (path, lineNumber) => {
+            const fileNamePath = path.split(context.payload.repository.name).pop()
+            const repoUrl = context.payload.pull_request.head.repo.html_url
+            const branch = context.payload.pull_request.head.ref
+            return `[${fileNamePath}:${lineNumber}](${repoUrl}/tree/${branch}${fileNamePath}#L${lineNumber})`
+          }
+
+          let report = require('./secrets.json')
+          let severity = Object.keys(report)
+          let body = []
+          severity.forEach(severity => {
+            body.push(`## secrets issues: ${severity}`)
+            report[severity].forEach(error => {
+              
+              body.push(`- [ ] **${error.rule.description.toLowerCase()}**`)
+              const cwe_ids = error.rule.cwe_ids
+              cwe_ids.forEach(cwe_id => {
+                body.push(
+                  `[cwe ${cwe_id}](https://cwe.mitre.org/data/definitions/${cwe_id}.html)`,
+                )
+              })
+              body.push(`${fileUrl(error.filename, error.line_number)}`)
+              if (error.detailed_context) {
+                body.push(`${error.detailed_context.toLowerCase()}`)
+              }
+              if (error.rule.documentation_url) {
+                body.push(`[Documentation](${error.rule.documentation_url})`)
+              }
+              body.push(`\n------`)
+            })
+          })
+
+          if (body.length) {
+            body.push(`🚨 ☝️ @${context.actor}`)
+
+            await github.rest.issues.createComment({
+              issue_number: context.payload.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `#🥷 🔒 secrets check\n${body.join('\n')}`,
+            })
+          } else {
+            await github.rest.issues.createComment({
+              issue_number: context.payload.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `:+1: @${context.actor} no secret issues detected! ✅`,
+            })
+          }
+
+          report = require('./sast.json')
+          severity = Object.keys(report)
+
+          body = []
+          severity.forEach(severity => {
+            body.push(`## security issues: ${severity}`)
+            report[severity].forEach(error => {
+              body.push(`- [ ] **${error.rule.description.toLowerCase()}**`)
+              const cwe_ids = error.rule.cwe_ids
+              cwe_ids.forEach(cwe_id => {
+                body.push(
+                  `[cwe ${cwe_id}](https://cwe.mitre.org/data/definitions/${cwe_id}.html)`,
+                )
+              })
+
+              body.push(`${fileUrl(error.filename, error.line_number)}`)
+
+              if (error.parent_content) {
+                body.push('```\n' + error.parent_content + '\n```')
+              }
+
+              if (error.rule.documentation_url) {
+                body.push(`[Documentation](${error.rule.documentation_url})`)
+              }
+              body.push(`\n------`)
+            })
+          })
+
+          if (body.length) {
+            body.push(`🚨 ☝️ @${context.actor}`)
+
+            await github.rest.issues.createComment({
+              issue_number: context.payload.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `#🥷 🛡️ security check\n${body.join('\n')}`,
+            })
+          } else {
+            await github.rest.issues.createComment({
+              issue_number: context.payload.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `:+1: @${context.actor} no security issues detected! ✅`,
+            })
+          }
