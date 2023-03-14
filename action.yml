@@ -72,7 +72,7 @@ runs:
               issue_number: context.payload.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `#🥷 🔒 secrets check\n${body.join('\n')}`,
+              body: `# 🥷 🔒 secrets check\n${body.join('\n')}`,
             })
           } else {
             await github.rest.issues.createComment({
@@ -118,7 +118,7 @@ runs:
               issue_number: context.payload.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `#🥷 🛡️ security check\n${body.join('\n')}`,
+              body: `# 🥷 🛡️ security check\n${body.join('\n')}`,
             })
           } else {
             await github.rest.issues.createComment({
