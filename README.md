@@ -1,0 +1,1 @@
+# security-ninja-code-scanner
