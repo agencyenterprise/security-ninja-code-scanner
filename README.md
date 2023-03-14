@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: start blade dance
-        uses: agencyenterprise/security-ninja-code-scanner@v1
+        uses: agencyenterprise/security-ninja-code-scanner@v2
 ```
 
 the security ninja code scanner will automatically scan your code changes whenever you create or commit to a pull request. if it detects any security issues or secrets, it will write a comment on the pull request with a detailed report of the problem.
