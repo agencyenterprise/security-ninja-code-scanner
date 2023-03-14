@@ -39,3 +39,14 @@ by default, the security ninja code scanner will scan your entire code repositor
 when the security ninja code scanner detects a security issue or secret, it will write a comment on the pull request with a report of the problem. 
 
 the report will include information about where the issue was found, such as the file name and line number, as well as a description of the issue and recommendations on how to address it.
+
+#### the ninja dojo
+
+you can also check the [security-ninja-code-scanner-dojo](https://github.com/agencyenterprise/security-ninja-code-scanner-dojo) repository for an example of how to use this action in practice. 
+
+this repository includes example code that demonstrates how to configure and run various security tests with this action.
+
+- [sample of a pull request](https://github.com/agencyenterprise/security-ninja-code-scanner-dojo/pull/1)
+- [sample of action](https://github.com/agencyenterprise/security-ninja-code-scanner-dojo/actions/runs/4421055944/jobs/7751454717)
+- [sample of the workflow file](https://github.com/agencyenterprise/security-ninja-code-scanner-dojo/blob/my-buggy-pr/.github/workflows/security-ninja-code-scanner.yml)
+
