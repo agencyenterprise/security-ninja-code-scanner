@@ -1,6 +1,13 @@
 name: security ninja code scanner
 description: this action performs a security scan on your code repository and detects any potential security vulnerabilities or secrets that may be present.
 
+inputs:
+  check_packages_vulnerabilities:
+    description: should it check vulnerabilities in your project's dependency tree?
+    required: false
+    default: false
+    type: boolean
+
 runs:
   using: composite
   steps:
@@ -27,6 +34,15 @@ runs:
     - name: run bearer code security
       shell: bash
       run: bearer scan ${{ github.workspace }} --scanner=sast --force --output sast.json --format json
+
+    - name: run npm audit
+      shell: bash
+      run: |
+        if (${{ inputs.check_packages_vulnerabilities }}) ; then
+          npm audit -audit-level=critical -json > audit.json
+        else 
+          echo "no need for checking packages vulnerabilities"
+        fi
 
     - name: create comment for reported errors
       uses: actions/github-script@v6
@@ -127,4 +143,63 @@ runs:
               repo: context.repo.repo,
               body: `:+1: @${context.actor} no security issues detected! ✅`,
             })
+          }
+
+
+          if (${{ inputs.check_packages_vulnerabilities }}) {
+            const audit = require('./audit.json')
+
+            const vulnerabilities = audit.vulnerabilities
+            body = []
+            const packages = Object.keys(vulnerabilities)
+            if (packages.length) {
+              packages.forEach(package => {
+                const vulnerability = vulnerabilities[package]
+                body.push(`- [ ] **${package.toLowerCase()}**`)
+                body.push(`severity: ${vulnerability.severity}`)
+                body.push(`range: \`${vulnerability.range}\``)
+                body.push(`${vulnerability.fixAvailable ? '✅ it is fixable' : 'not fixable yet'}`)
+                const via = vulnerability.via
+                if (via.length > 0) {
+                  body.push(`via:`)
+                  via.forEach(item => {
+                    if (typeof item === 'string') {
+                      body.push(`- ${item}`)
+                    } else {
+                      if (item.title) {
+                        body.push(`- *${item.title}* - ${item.dependency ? `dependency: ${item.dependency}` : ''}`)
+                      }
+                      if (item.url) {
+                        body.push(`   ${item.url}`)
+                      }
+                    }
+                    if (item.cwe) {
+                      const cwe = []
+                      item.cwe.forEach(cweItem => {
+                        cwe.push(`[${cweItem}](https://cwe.mitre.org/data/definitions/${cweItem}.html)`)
+                      })
+                      body.push(`   ${cwe.join(', ')}`)
+                    }
+                  })
+                  body.push(`\n------`)
+                }
+              })
+
+              if (body.length) {
+                body.push(`🚨 ☝️ @${context.actor}`)
+                await github.rest.issues.createComment({
+                  issue_number: context.payload.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: `# 🥷 🛡️ npm audit issues\n${body.join('\n')}`,
+                })
+              } else {
+                await github.rest.issues.createComment({
+                  issue_number: context.payload.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: `:+1: @${context.actor} no npm audit issues detected! ✅`,
+                })
+              }
+            }
           }
