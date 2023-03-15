@@ -64,5 +64,4 @@ if you're still feeling paranoid (or just want to make sure you're doing everyth
 
 now, we know what you're thinking - "static application security testing" sounds about as exciting as a filing cabinet. but trust us - it's a good way to keep your code safe from all kinds of attacks. with sast, you can run automated tests to check for vulnerabilities, making sure your app stays as secure as fort knox.
 
-so, if you're ready to become a security superhero (or just want to impress your friends with your newfound security skills), check out our static application security testing guide. we promise it's more fun than a night at the casino - and a lot safer, too!
-
+so, if you're ready to become a security superhero (or just want to impress your friends with your newfound security skills), check out our [static application security testing guide](https://app.gitbook.com/o/-MKgZVdiD84BirEX9cXC/s/yTDqgcPmFQjEpoU9fDJt/security/static-application-security-testing). we promise it's more fun than a night at the casino - and a lot safer, too!
