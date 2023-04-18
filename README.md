@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: start blade dance
-        uses: agencyenterprise/security-ninja-code-scanner@v3
+        uses: agencyenterprise/security-ninja-code-scanner@v4
         # optional param to check for vulnerabilities on the package-lock.json
         # in order to use that you need to have this file on your repository
         with:
