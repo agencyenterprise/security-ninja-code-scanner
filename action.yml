@@ -24,9 +24,9 @@ runs:
       with:
         node-version: 14.x
 
-    - name: run bearer for secrets
+    - name: run bearer scan
       shell: bash
-      run: bearer scan ${{ github.workspace }} --scanner=secrets,sast --force --output report-scan.json --format json
+      run: /usr/local/bin/bearer scan ${{ github.workspace }} --scanner=secrets,sast --force --output report-scan.json --format json
 
     - name: run npm audit
       shell: bash
