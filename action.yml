@@ -17,10 +17,7 @@ runs:
     - name: install bearer
       shell: bash
       run: |
-        sudo apt-get install apt-transport-https
-        sudo echo "deb [trusted=yes] https://apt.fury.io/bearer/ /" | sudo tee -a /etc/apt/sources.list.d/fury.list
-        sudo apt-get update
-        sudo apt-get install bearer
+        sudo curl -sfL https://raw.githubusercontent.com/Bearer/bearer/main/contrib/install.sh | sh
 
     - name: setup node.js
       uses: actions/setup-node@v2
