@@ -13,11 +13,11 @@ runs:
   steps:
     - name: checkout code
       uses: actions/checkout@v2
-
+      
     - name: install bearer
       shell: bash
       run: |
-        sudo curl -sfL https://raw.githubusercontent.com/Bearer/bearer/main/contrib/install.sh | sh
+        curl -sfL https://raw.githubusercontent.com/Bearer/bearer/main/contrib/install.sh | sh -d -s -- -b /usr/local/bin
 
     - name: setup node.js
       uses: actions/setup-node@v2
