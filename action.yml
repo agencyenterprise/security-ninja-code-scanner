@@ -17,7 +17,7 @@ runs:
     - name: install bearer
       shell: bash
       run: |
-        curl -sfL https://raw.githubusercontent.com/Bearer/bearer/main/contrib/install.sh | sh -d -s -- -b /usr/local/bin
+        curl -sfL https://raw.githubusercontent.com/Bearer/bearer/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
     - name: setup node.js
       uses: actions/setup-node@v2
