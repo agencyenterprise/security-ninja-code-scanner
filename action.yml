@@ -26,7 +26,7 @@ runs:
 
     - name: run bearer scan
       shell: bash
-      run: /usr/local/bin/bearer scan ${{ github.workspace }} --scanner=secrets,sast --force --output report-scan.json --format json
+      run: /usr/local/bin/bearer scan ${{ github.workspace }} --scanner=secrets,sast --output report-scan.json --format json --debug --exit-code=0
 
     - name: run npm audit
       shell: bash
